@@ -1,16 +1,51 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# Product Catalog (Kotlin Multiplatform)
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+This project implements a **Product Catalog feature** as a Kotlin Multiplatform application with an **offline-first** approach.
+The app provides a catalog list with pagination, product details, and a favorites screen, while keeping the architecture clean,
+testable, and ready for future iOS UI integration.
 
-* [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+## Goal
+
+Build a maintainable and scalable **Product Catalog** experience with:
+
+- **Catalog list** (paginated)
+- **Product search**
+- **Product details**
+- **Favorites management**
+- **Offline-first behavior** (local DB as the single source of truth)
+
+The UI always consumes data from the local database. When the internet is available, the app synchronizes remote data into the database.
+When offline, the app continues to operate using cached data.
+
+## Tech Stack
+
+- **Kotlin Multiplatform (KMP)**
+- **Compose Multiplatform**
+    - Android UI is implemented using **Jetpack Compose**
+- **Decompose** for navigation and component-based state management
+- **Ktor Client** for networking
+- **Room (KMP)** for local persistence
+- **Koin** for dependency injection
+- **Coroutines + Flow** for async operations and reactive DB updates
+- **Unit tests** for domain and presentation logic
+
+## Architecture
+
+The project follows a **feature-first** structure with Clean Architecture principles inside each feature:
+
+- `feature/catalog/api` — API contracts and DTOs
+- `feature/catalog/data` — repository implementation, mappers, local/remote data sources, sync layer
+- `feature/catalog/domain` — business models, repository interfaces, use-cases
+- `feature/catalog/presentation` — Decompose components, UI state and presentation logic
+
+### Offline-first strategy (Single Source of Truth)
+
+- The local database is the **single source of truth**.
+- UI observes data via `Flow` from Room DAOs.
+- Network calls never update UI directly — they **synchronize into the database**.
+- Synchronization is triggered by UI events (e.g. initial load, pagination, details open) and updates are reflected automatically.
+
+This approach ensures consistent data flow, deterministic state management, and resilient behavior in unstable network conditions.
 
 ### Build and Run Android Application
 
@@ -24,12 +59,3 @@ in your IDE’s toolbar or build it directly from the terminal:
   ```shell
   .\gradlew.bat :composeApp:assembleDebug
   ```
-
-### Build and Run iOS Application
-
-To build and run the development version of the iOS app, use the run configuration from the run widget
-in your IDE’s toolbar or open the [/iosApp](./iosApp) directory in Xcode and run it from there.
-
----
-
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
