@@ -1,10 +1,16 @@
 package org.example.kmp.feature.catalog.presentation.list
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -14,13 +20,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import org.jetbrains.compose.resources.painterResource
-import simplekmp.composeapp.generated.resources.Res
-import simplekmp.composeapp.generated.resources.compose_multiplatform
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,7 +35,21 @@ fun CatalogListContent(
     component: CatalogListComponent,
     modifier: Modifier = Modifier,
 ) {
-    val searchQueryState = remember { mutableStateOf("") }
+    val state by component.state.collectAsState()
+
+    var query by remember { mutableStateOf("") }
+
+    val filteredItems = remember(state.items, query) {
+        val q = query.trim()
+        if (q.isBlank()) {
+            state.items
+        } else {
+            state.items.filter { product ->
+                product.title.contains(q, ignoreCase = true) ||
+                        product.description.contains(q, ignoreCase = true)
+            }
+        }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -37,9 +58,8 @@ fun CatalogListContent(
                 title = { Text("Catalog") },
                 actions = {
                     IconButton(onClick = component::onOpenFavorites) {
-                        // placeholder icon (replace later)
                         Icon(
-                            painter = painterResource(Res.drawable.compose_multiplatform),
+                            imageVector = Icons.Filled.Favorite,
                             contentDescription = "Favorites",
                         )
                     }
@@ -55,27 +75,57 @@ fun CatalogListContent(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             OutlinedTextField(
-                value = searchQueryState.value,
-                onValueChange = { searchQueryState.value = it },
+                value = query,
+                onValueChange = { query = it },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Search (local)") },
                 singleLine = true,
             )
 
-            Text("Catalog list will be here")
-
-            Button(
-                onClick = { component.onOpenDetails(productId = 1) },
-                modifier = Modifier.fillMaxWidth(),
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Text("Open product #1 (temporary)")
+                items(
+                    items = filteredItems,
+                    key = { it.id },
+                ) { product ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { component.onOpenDetails(product.id) }
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = product.title,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Text(
+                                text = product.description,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Text("Price: ${product.price}")
+                        }
+
+                        IconButton(onClick = { component.onToggleFavorite(product.id) }) {
+                            Text(if (product.isFavorite) "♥" else "♡")
+                        }
+                    }
+                }
             }
 
-            Button(
-                onClick = { /* later: load next page */ },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Load next page (temporary)")
+            if (query.isBlank()) {
+                Button(
+                    onClick = component::onLoadNextPage,
+                    enabled = !state.isPageLoading && state.canLoadMore,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Load next page")
+                }
             }
         }
     }

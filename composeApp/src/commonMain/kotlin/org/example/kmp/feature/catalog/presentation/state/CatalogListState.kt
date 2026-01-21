@@ -4,7 +4,6 @@ import org.example.kmp.feature.catalog.domain.model.Product
 import org.example.kmp.feature.catalog.presentation.model.UiError
 
 data class CatalogListState(
-    val query: String = "",
     val items: List<Product> = emptyList(),
 
     val pageIndex: Int = 0,

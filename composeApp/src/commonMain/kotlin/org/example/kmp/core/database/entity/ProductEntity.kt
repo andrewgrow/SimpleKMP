@@ -9,7 +9,7 @@ data class ProductEntity(
 
     val title: String,
     val description: String,
-    val price: Int,
+    val price: Double,
 
     val thumbnailUrl: String,
     val images: List<String>,
