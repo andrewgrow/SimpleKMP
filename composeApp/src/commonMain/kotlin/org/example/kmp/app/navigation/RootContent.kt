@@ -7,20 +7,28 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.arkivanov.decompose.extensions.compose.stack.Children
+import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import org.example.kmp.feature.catalog.presentation.details.ProductDetailsComponent
+import org.example.kmp.feature.catalog.presentation.details.ProductDetailsContent
 import org.example.kmp.feature.catalog.presentation.favorites.FavoritesComponent
+import org.example.kmp.feature.catalog.presentation.favorites.FavoritesContent
 import org.example.kmp.feature.catalog.presentation.list.CatalogListComponent
+import org.example.kmp.feature.catalog.presentation.list.CatalogListContent
 
 @Composable
 fun RootContent(
     component: RootComponent,
     modifier: Modifier = Modifier,
 ) {
-    BackHandler {
+    val stack by component.childStack.subscribeAsState()
+    val canGoBack = stack.items.size > 1
+
+    BackHandler(enabled = canGoBack) {
         component.onBackClicked()
     }
 
@@ -29,63 +37,9 @@ fun RootContent(
         modifier = modifier,
     ) { child ->
         when (val instance = child.instance) {
-            is RootComponent.Child.Catalog -> CatalogPlaceholder(instance.component)
-            is RootComponent.Child.Details -> DetailsPlaceholder(instance.component)
-            is RootComponent.Child.Favorites -> FavoritesPlaceholder(instance.component)
-        }
-    }
-}
-
-@Composable
-private fun CatalogPlaceholder(component: CatalogListComponent) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text("Catalog screen (placeholder)")
-
-        Button(onClick = { component.onOpenDetails(productId = 1) }) {
-            Text("Open product #1")
-        }
-
-        Button(onClick = component::onOpenFavorites) {
-            Text("Open favorites")
-        }
-    }
-}
-
-@Composable
-private fun DetailsPlaceholder(component: ProductDetailsComponent) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text("Details screen (placeholder)")
-        Text("Product id: ${component.productId}")
-
-        Button(onClick = component::onBack) {
-            Text("Back")
-        }
-    }
-}
-
-@Composable
-private fun FavoritesPlaceholder(component: FavoritesComponent) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text("Favorites screen (placeholder)")
-
-        Button(onClick = { component.onOpenDetails(productId = 1) }) {
-            Text("Open product #1")
-        }
-
-        Button(onClick = component::onBack) {
-            Text("Back")
+            is RootComponent.Child.Catalog -> CatalogListContent(instance.component)
+            is RootComponent.Child.Details -> ProductDetailsContent(instance.component)
+            is RootComponent.Child.Favorites -> FavoritesContent(instance.component)
         }
     }
 }
