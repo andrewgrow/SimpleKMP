@@ -10,8 +10,8 @@ val appNavigationModule = module {
             observeCatalogUseCase = get(),
             syncCatalogPageUseCase = get(),
             toggleFavoriteUseCase = get(),
-            syncProductDetailsUseCase = get(),
             observeFavoritesUseCase = get(),
+            observeProductDetailsUseCase = get(),
         )
     }
 }
