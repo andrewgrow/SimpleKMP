@@ -2,6 +2,7 @@ package org.example.kmp
 
 import android.app.Application
 import org.example.kmp.di.androidNetworkModule
+import org.example.kmp.di.appNavigationModule
 import org.example.kmp.di.catalogModule
 import org.example.kmp.di.databaseModule
 import org.example.kmp.di.networkModule
@@ -20,6 +21,7 @@ class AppApplication : Application() {
                 databaseModule,
                 networkModule,
                 catalogModule,
+                appNavigationModule,
             )
         }
     }
