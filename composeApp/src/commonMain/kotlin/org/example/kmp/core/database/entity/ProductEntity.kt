@@ -1,4 +1,19 @@
 package org.example.kmp.core.database.entity
 
-class ProductEntity {
-}
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "products")
+data class ProductEntity(
+    @PrimaryKey val id: Int,
+
+    val title: String,
+    val description: String,
+    val price: Int,
+
+    val thumbnailUrl: String,
+    val images: List<String>,
+
+    val updatedAt: Long,
+    val lastSeenAt: Long,
+)

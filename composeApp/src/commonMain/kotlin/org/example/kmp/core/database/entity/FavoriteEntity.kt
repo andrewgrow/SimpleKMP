@@ -1,4 +1,10 @@
 package org.example.kmp.core.database.entity
 
-class FavoriteEntity {
-}
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "favorites")
+data class FavoriteEntity(
+    @PrimaryKey val productId: Int,
+    val createdAt: Long,
+)

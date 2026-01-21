@@ -91,5 +91,9 @@ android {
 dependencies {
     add("kspAndroid", libs.room.compiler)
     debugImplementation(compose.uiTooling)
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose)
+    implementation(libs.koin.androidx.compose)
 }
 
