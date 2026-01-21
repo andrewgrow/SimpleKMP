@@ -24,8 +24,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+
+private const val TAG_FAVORITES_SCREEN = "favorites_screen"
+private const val TAG_FAVORITES_EMPTY = "favorites_empty"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,7 +40,9 @@ fun FavoritesContent(
     val state by component.state.collectAsState()
 
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .testTag(TAG_FAVORITES_SCREEN),
         topBar = {
             TopAppBar(
                 title = { Text("Favorites") },
@@ -63,7 +69,10 @@ fun FavoritesContent(
             }
 
             if (state.items.isEmpty()) {
-                Text("No favorites yet.")
+                Text(
+                    text = "No favorites yet.",
+                    modifier = Modifier.testTag(TAG_FAVORITES_EMPTY)
+                )
                 return@Column
             }
 

@@ -43,9 +43,11 @@ The project follows a **feature-first** structure with Clean Architecture princi
 - The local database is the **single source of truth**.
 - UI observes data via `Flow` from Room DAOs.
 - Network calls never update UI directly — they **synchronize into the database**.
-- Synchronization is triggered by UI events (e.g. initial load, pagination, details open) and updates are reflected automatically.
+- Sync is intentionally user-driven (Load next page) to avoid implicit background requests and keep the offline-first flow predictable.
 
 This approach ensures consistent data flow, deterministic state management, and resilient behavior in unstable network conditions.
+
+Note: after restarting the app, the catalog initially shows only the first page again (even if more products are already cached in the database).
 
 ## Screenshots & App Flow
 
@@ -99,3 +101,18 @@ in your IDE’s toolbar or build it directly from the terminal:
   ```shell
   .\gradlew.bat :composeApp:assembleDebug
   ```
+
+### Testing
+
+See **TESTING.md** for a detailed testing strategy and test coverage.
+
+Run all tests (unit + instrumented UI):
+- on macOS/Linux
+```bash
+./gradlew :composeApp:testDebugUnitTest :composeApp:connectedDebugAndroidTest --no-configuration-cache
+```
+
+- on Windows
+```shell
+.\gradlew.bat :composeApp:testDebugUnitTest :composeApp:connectedDebugAndroidTest --no-configuration-cache
+```

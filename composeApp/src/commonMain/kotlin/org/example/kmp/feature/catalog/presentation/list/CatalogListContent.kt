@@ -26,8 +26,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+
+private const val TAG_CATALOG_SCREEN = "catalog_screen"
+private const val TAG_CATALOG_SEARCH = "catalog_search"
+private const val TAG_LOAD_NEXT_PAGE = "catalog_load_next_page"
+private const val TAG_OPEN_FAVORITES = "catalog_open_favorites"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,12 +58,17 @@ fun CatalogListContent(
     }
 
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .testTag(TAG_CATALOG_SCREEN),
         topBar = {
             TopAppBar(
                 title = { Text("Catalog") },
                 actions = {
-                    IconButton(onClick = component::onOpenFavorites) {
+                    IconButton(
+                        onClick = component::onOpenFavorites,
+                        modifier = Modifier.testTag(TAG_OPEN_FAVORITES),
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = "Favorites",
@@ -77,7 +88,9 @@ fun CatalogListContent(
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag(TAG_CATALOG_SEARCH),
                 label = { Text("Search (local)") },
                 singleLine = true,
             )
@@ -94,7 +107,9 @@ fun CatalogListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { component.onOpenDetails(product.id) }
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = 8.dp)
+                            .testTag("catalog_item_${product.id}")
+                        ,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
@@ -111,7 +126,10 @@ fun CatalogListContent(
                             Text("Price: ${product.price}")
                         }
 
-                        IconButton(onClick = { component.onToggleFavorite(product.id) }) {
+                        IconButton(
+                            onClick = { component.onToggleFavorite(product.id) },
+                            modifier = Modifier.testTag("catalog_favorite_${product.id}")
+                        ) {
                             Text(if (product.isFavorite) "♥" else "♡")
                         }
                     }
@@ -122,7 +140,9 @@ fun CatalogListContent(
                 Button(
                     onClick = component::onLoadNextPage,
                     enabled = !state.isPageLoading && state.canLoadMore,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(TAG_LOAD_NEXT_PAGE),
                 ) {
                     Text("Load next page")
                 }
